@@ -44,9 +44,22 @@
                 $errorEntrada=true;
                 $texto_error="La fecha no es válida, ejemplo: 12/05/2021";  
             }else{
-               //se obtiene el dia de la semana del mes y del  que se le pasa como parametro
-               $diasDelMes=diasMes($m,$y);
+               //se obtiene el dia de la semana del mes y del  que se le pasa como parámetro
                $diaSemana=diaSemana($d, $m, $y);
+               //se obtiene los dias que tiene un mes que se le pasa como parametro
+               $diasDelMes=diasMes($m,$y);
+               //se obtiene el numero de dias del mes siguiente
+                $mesSiguiente=$m+1;
+               if($mesSiguiente==12){
+                $mesSiguiente=1;
+               }
+               /**
+                * dibujamos el calendario
+                * @param integer $diaSemana
+                * @param integer $diasDelMes
+                * @param integer $mesSiguiente 
+                */
+               
             }
         }
         if($errorEntrada){
