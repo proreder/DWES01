@@ -1,3 +1,29 @@
 .error{
     color: red;
 }
+
+
+.cabecera{
+    background-color: #FFA500;
+    width: 90px;
+    height: 30px;
+    text-align: center;
+}
+.laboral{
+    background-color: #ABF6AB;
+    width: 90px;
+    height: 60px;
+    
+}
+.festivo{
+    background-color: #A8DEA8;
+    width: 90px;
+    height: 60px;
+    text-align: center;
+}
+.blanco{
+    background-color: #fff;
+    width: 90px;
+    height: 60px;
+    text-align: center;
+}
