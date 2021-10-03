@@ -12,14 +12,34 @@
 
     include_once 'ejercicio3.form.html';
     //verificamos si se reciben datos
-    if(!isset($_POST['tramo']) || !empty($_POST['tramo']) ){
-        echo "Datos correctos";
+    if(!empty($_POST)){
+        if(isset($_POST['tramo']) && !empty($_POST['tramo'])){
+            echo "Datos correctos";
+            print_r($_POST['tramo']);
+            $tramo=$_POST['tramo'];
+            iniciar($tramo);
+        }else{
+            echo "Datos incorrectos"; 
+        }
     }else{
         echo "<script language='javascript'>
                 alert('No existen datos del tramo.');
                 
               </script>";
     }
+    
+    //iniciamos el proceso de verificación
+    function iniciar($tramo){
+        $continua=false;
+        //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/
+        $continua=comprobarTramoHoras($tramo);
+        if($continua){
+            echo "<br><p>Patrón correcto.</p>";
+        }else{
+            echo "<br><p>Patrón incorrecto.</p>";
+        }
+    }
+    
     /**
      * Esta función convierte una cadena que contiene una hora, por ejemplo '11:30',
      *  a minutos desde comienzo del día.
@@ -27,7 +47,11 @@
      * @return string retornará un número entero o false si no se ha podido hacer la conversión.
      */
     function convertirHoraAMinutos ($hora){
-        return resultado;
+        $tiempo=explode(":",$hora);
+        $horas=$tiempo[0];
+        $minutos=$tiempo[1];
+        $resultado=($horas*60)+$minutos;
+        return $resultado;
     }
 
     /**
@@ -50,20 +74,54 @@
      *  3º) Comprobar que la hora de inicio es mayor que 0.
      *  4º) Comprobar que la hora de fin es menor o igual a 23:59.
      *  @param string $tramo
-     *  @return string Retorna true si el tramo es correcto y false en caso contrario.
+     *  @return boolean Retorna true si el tramo es correcto y false en caso contrario.
      *                 Ddeberá retornar false cuando una de las horas no es válida
      *                 (por ejemplo: '10:61'), y que la hora '0:0' es válida.
      */
     function comprobarTramoHoras ($tramo){
         $resul=false;
-        $patter="/^\d+:\d+-\d+:\d+$/";
+        $tramo1=0;
+        $tramo2=0;
+        $pattern="/^\d+:\d+-\d+:\d+$/";
         //comparamos si coincide el patrón
-        if(preg_match($patter, $tramo)){
-            echo "Tram de horas correctos.";
+        if(preg_match($pattern, $tramo)){
+            echo "Tramo de horas correctos.";
             $resul=true;
         }
-        //separamos las dos horas del tramo con split
-        
+        //separamos las dos horas del tramo con explode y lo guardamos en un array
+        if($resul){
+            $arrayTramos=explode("-", $tramo);
+        }
+        //separamos los tramos para su verificación 
+        if(!empty($arrayTramos)){
+             $minutos1=explode(":",$arrayTramos[0]);
+            //verificamos que los miutos de tramo1 no superen los 59min
+            if($minutos1[1]>59){ 
+                $resul=false;
+            }else{
+                $tramo1=convertirHoraAMinutos($arrayTramos[0]);
+            }
+            
+           //verificamos que los miutos de tramo1 no superen los 59min
+            $minutos2=explode(":",$arrayTramos[1]);
+            echo "Minutos2: ";
+            print_r($minutos2);
+            if($minutos2[1]>59){ 
+                $resul=false;
+            }else{
+                $tramo2=convertirHoraAMinutos($arrayTramos[1]);
+            }
+            
+            //si tramo inicio es menor o igual a 0 se devuelve false, o si tramo final 
+            //es menor que tramo inicio se devuelve false
+            if(!($tramo1>=0 && $tramo1<$tramo2)){
+                $resul=false;
+            }
+            //si tramo final es mayor de 1439min (23:59) se devuelve false.
+            if($tramo2>1439){
+                $resul=false;
+            }
+        }
         
         
         return $resul;
