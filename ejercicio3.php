@@ -35,6 +35,7 @@
         $continua=comprobarTramoHoras($tramo);
         if($continua){
             echo "<br><p>Patrón correcto.</p>";
+            convertirTramoHorasATramoMinutos($tramo);
         }else{
             echo "<br><p>Patrón incorrecto.</p>";
         }
@@ -56,13 +57,20 @@
 
     /**
      * Esta función debe usar la función convertirHoraAMinutos. El objetivo de esta
-     * función es convertir un tramo horario en el número de minutos desde comienzo
-     * del día
-     * @param string $tramo String que corrsponde con un tramo horario '11:30-12:30' =>array[690,750], 11:30=690min y 12:30=750min
+     * función es convertir un tramo horario en el número de minutos desde comienzo del día.
+     * @param string $tramo String que corresponde con un tramo horario '11:30-12:30' =>array[690,750], 11:30=690min y 12:30=750min
      * @return array retorna un array de dos números, uno para el comienzo del tramo y otro para el fin del tramo
      */
     function convertirTramoHorasATramoMinutos ($tramo){
-        return $array;
+        $arrayTramo=[];
+        //separamos las dos horas del tramo con explode
+        $array=explode("-", $tramo);
+        $hora1=convertirHoraAMinutos($array[0]);
+        $hora2=convertirHoraAMinutos($array[1]);
+        $arrayTramo=[$hora1, $hora2];
+        echo "ArrayTramo:";
+        print_r($arrayTramo);
+        return $arrayTramo;
     }
 
     /*
@@ -85,7 +93,7 @@
         $pattern="/^\d+:\d+-\d+:\d+$/";
         //comparamos si coincide el patrón
         if(preg_match($pattern, $tramo)){
-            echo "Tramo de horas correctos.";
+            //Tramo de horas correctos
             $resul=true;
         }
         //separamos las dos horas del tramo con explode y lo guardamos en un array
@@ -102,7 +110,7 @@
                 $tramo1=convertirHoraAMinutos($arrayTramos[0]);
             }
             
-           //verificamos que los miutos de tramo1 no superen los 59min
+           //verificamos que los minutos de tramo1 no superen los 59min
             $minutos2=explode(":",$arrayTramos[1]);
             echo "Minutos2: ";
             print_r($minutos2);
@@ -122,9 +130,7 @@
                 $resul=false;
             }
         }
-        
-        
-        return $resul;
+         return $resul;
     }
 
     /**
