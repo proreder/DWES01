@@ -9,13 +9,17 @@
 </head>
 <body>
 <?php
-
+    //incluimos el formulario
     include_once 'ejercicio3.form.html';
+    //array globales
+    $horario=['10:00-13:30','16:30-20:30'];
+    $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00'];
+    
     //verificamos si se reciben datos
     if(!empty($_POST)){
         if(isset($_POST['tramo']) && !empty($_POST['tramo'])){
-            echo "Datos correctos";
-            print_r($_POST['tramo']);
+            // echo "Datos correctos";
+            // print_r($_POST['tramo']);
             $tramo=$_POST['tramo'];
             iniciar($tramo);
         }else{
@@ -34,8 +38,53 @@
         //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/
         $continua=comprobarTramoHoras($tramo);
         if($continua){
-            echo "<br><p>Patrón correcto.</p>";
-            convertirTramoHorasATramoMinutos($tramo);
+            // echo "<br><p>Patrón correcto.</p>";
+            //$tramo='11:30-12:30=>$arrayTramo=[690,750]
+            $arrayTramo=convertirTramoHorasATramoMinutos($tramo);
+            //echo "<br>Tramo: ";
+            //print_r($arrayTramo);
+            //Verificamos que el tramoA no está contenido en el tramoB
+            $tramoA='10:20-10:30';
+            $tramoB='10:00-10:30';
+            echo "<br>TramoA: ${tramoA}<br>TramoB: ${tramoB}<br>";
+            $contenido=esTramoHorasContenidoEnOtroTramoHoras($tramoA, $tramoB);
+            if($contenido){
+                echo "<br>El tramoA está contenido en el tramoB: ";
+            }else{
+                echo "<br>El tramoA no está contenido en el tramoB: ";
+            }
+            
+            //verificamos si los tramos se pisan
+            $tramo1='10:20-10:30';
+            $tramo2='10:15-10:25';
+            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            echo $resultado;
+            $tramo2='10:21-10:29';
+            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            echo $resultado;
+            $tramo2='10:30-10:40';
+            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            echo $resultado;
+            $tramo1='10:21-10:30';
+            $tramo2='10:31-10:40';
+            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            echo $resultado;
+            $tramo1='10:21-10:30';
+            $tramo2='10:10-10:20';
+            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            echo $resultado;
+            //verificamos un tramo con el array ocupación
+            echo "comprobarSiPisaTramosOcupados";
+            $tramo1='19:20-19:31';
+            global $ocupacion;
+            $errores="";
+            $errores=comprobarSiPisaTramosOcupados($tramo1, $ocupacion);
+            echo "<br>Errores:";
+            print_r($errores);
+            $tramo2='18:31-18:40';
+            comprobarSiPisaTramosOcupados($tramo2, $ocupacion);
+            echo "<br>Errores:";
+            print_r($errores);
         }else{
             echo "<br><p>Patrón incorrecto.</p>";
         }
@@ -68,8 +117,7 @@
         $hora1=convertirHoraAMinutos($array[0]);
         $hora2=convertirHoraAMinutos($array[1]);
         $arrayTramo=[$hora1, $hora2];
-        echo "ArrayTramo:";
-        print_r($arrayTramo);
+        
         return $arrayTramo;
     }
 
@@ -112,8 +160,8 @@
             
            //verificamos que los minutos de tramo1 no superen los 59min
             $minutos2=explode(":",$arrayTramos[1]);
-            echo "Minutos2: ";
-            print_r($minutos2);
+            //echo "Minutos2: ";
+            //sprint_r($minutos2);
             if($minutos2[1]>59){ 
                 $resul=false;
             }else{
@@ -143,41 +191,74 @@
      *  @param string $tramoA Primer tramo a comparar
      *  @param string $tramoB Segundo tramo a comparar 
      */
-    function esTramoHorasContenidoEnOtroTramoHoras ($tramoA, $tramoB){ 
-        return $valor;
+    function esTramoHorasContenidoEnOtroTramoHoras ($tramoA, $tramoB){
+        $esContenido=false;
+        //verificamos que se cumple el formato correcto
+        $resulA=comprobarTramoHoras($tramoA);
+        $resulB=comprobarTramoHoras($tramoB);
+        if($resulA && $resulB){
+            //convertimos los tramos en array de minutos
+            $arrayTramoA=convertirTramoHorasATramoMinutos($tramoA);
+            $arrayTramoB=convertirTramoHorasATramoMinutos($tramoB);
+            //pasamos el array a variables con list
+            list($tramoA_inicio, $tramoA_fin)=$arrayTramoA;
+            list($tramoB_inicio, $tramoB_fin)=$arrayTramoB;
+            if(($tramoA_inicio>$tramoB_inicio) && ($tramoA_fin<=$tramoB_fin)){
+                $esContenido=true;
+            }
+        }
+        return $esContenido;
     }
 
     /**
      * esta función deberá usar las otras funciones convenientemente. El objetivo de esta función
      *  es verificar si el $tramo1 se solapa con el $tramo2, retornando una cadena de texto indicando el problema.
 
-        Ejemplo 1: dados los tramos '10:20-10:30' y '10:15-10:25' el método debería retornar una cadena
+     *   Ejemplo 1: dados los tramos '10:20-10:30' y '10:15-10:25' el método debería retornar una cadena
      *             indicando "Tramo 10:20-10:30 coincidente con el tramo 10:15-10:25" dado que hay 5 minutos donde dichos tramo se solapan.
-        Ejemplo 2: dados los tramos '10:20-10:30' y '10:21-10:29' el método debería retornar una cadena 
+     *   Ejemplo 2: dados los tramos '10:20-10:30' y '10:21-10:29' el método debería retornar una cadena 
      *             indicando "Tramo 10:20-10:30 coincidente con el tramo 10:21-10:29" dado que el segundo tramo está contenido dentro dle primero.
-        Ejemplo 3: dados los tramos '10:20-10:30' y '10:30-10:40' el metodo debería retornar una cadena 
+     *   Ejemplo 3: dados los tramos '10:20-10:30' y '10:30-10:40' el metodo debería retornar una cadena 
      *             indicando que dichos tramos coinciden, dado que ambos tramos comparten un minuto (las 10:30).
-        Ejemplo 4: dados los tramos '10:21-10:30' y '10:31-10:40' el método debería retornar una cadena vacía, 
+     *   Ejemplo 4: dados los tramos '10:21-10:30' y '10:31-10:40' el método debería retornar una cadena vacía, 
      *             dado que no hay ninguna coincidencia.
 
      * @param string $tramo1
      * @param string $tramo2
-     * @return string
+     * @return string $cadena
      */
 
     function comprobarSiSePisanTramosHoras ($tramo1,$tramo2){
-        return $resultado;
+        $cadena="";
+        //verificamos que se cumple el formato correcto
+        $resul1=comprobarTramoHoras($tramo1);
+        $resul2=comprobarTramoHoras($tramo2);
+        if($resul1 && $resul2){
+            //convertimos los tramos en array de minutos
+            $arrayTramo1=convertirTramoHorasATramoMinutos($tramo1);
+            $arrayTramo2=convertirTramoHorasATramoMinutos($tramo2);
+            //pasamos el array a variables con list
+            list($tramo1_inicio, $tramo1_fin)=$arrayTramo1;
+            list($tramo2_inicio, $tramo2_fin)=$arrayTramo2;
+            //si tramo1_fin es < que tramo2_inicio no se pisan
+            //si tramo1_inicio es > tramo2_ fin no se pisan
+            if(!($tramo1_fin<$tramo2_inicio || $tramo1_inicio>$tramo2_fin)){
+                $cadena="<p style='color:red'> Tramo ${tramo1} coincidente con el tramo ${tramo2}.</p>";
+            }
+        }
+        return $cadena;
+        
     }
 
     /**
      * Usando los métodos anteriores convenientemente, debes crear un método que dado un tramo ($tramo) 
      * compruebe si se solapa con alguno de los tramos contenidos en el array $tramosOcupados.
 
-        Ejemplo: dado el tramo '12:20-13:00' el array de tramos ocupados $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00']; 
-                 el método debería retornar un array con dos cadenas:
-            Tramo 12:20-13:00 coincidente con el tramo 11:30-12:30
-            Tramo 12:20-13:00 coincidente con el tramo 12:31-13:30
-        En caso de que no haya ningún tramo coincidente, se retornará un array vacío.
+     *   Ejemplo: dado el tramo '12:20-13:00' el array de tramos ocupados $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00']; 
+     *            el método debería retornar un array con dos cadenas:
+     *       Tramo 12:20-13:00 coincidente con el tramo 11:30-12:30
+     *       Tramo 12:20-13:00 coincidente con el tramo 12:31-13:30
+     *   En caso de que no haya ningún tramo coincidente, se retornará un array vacío.
 
      * @param string $tramo Tramo para a comprobar
      * @param array $tramosOcupados Attray que contiene los tramos
@@ -185,22 +266,34 @@
      *               con dos cadenas, la cadena de entrada y la cadena del array coincidentede.
      *               En caso de que no haya ningún tramo coincidente, se retornará un array vacío
      */
-    function comprobarSiPisaTramosOcupados ($tramo, $tramosOcupados){
-
+    function comprobarSiPisaTramosOcupados($tramo, $arrayOcupados){
+        $error=false;
+        $errores=[];
+        var_dump($arrayOcupados);
+            //recorremos el array $ocupacion con todos los tramos
+            foreach ($arrayOcupados as $unTramo){
+                
+                $cadena=comprobarSiSePisanTramosHoras($tramo, $unTramo);
+                $errores[]=$cadena;
+            }
+        
+                   
+        return $errores;
     }
-
+        
     /**
      * Usando los métodos anteriores convenientemente, debes crear un método que dado un tramo ($tramo) 
      * retorne true si el tramo está dentro del horario ($tramosHorario) o false en caso contrario.
-
-        Ejemplo 1: dado el tramo '12:20-13:31' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar false.
-        Ejemplo 2: dado el tramo '12:20-13:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar true.
-        Ejemplo 3: dado el tramo '16:29-20:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar false.
-        Ejemplo 4: dado el tramo '16:30-20:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar true
+     *
+     *   Ejemplo 1: dado el tramo '12:20-13:31' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar false.
+     *   Ejemplo 2: dado el tramo '12:20-13:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar true.
+     *   Ejemplo 3: dado el tramo '16:29-20:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar false.
+     *   Ejemplo 4: dado el tramo '16:30-20:30' y el horario  $horario=['10:00-13:30','16:30-20:30'] el método debería retornar true
      * @param string $tramo Primer tramo a comparar
      * @param string $tramosHorario Segundo tramo a comparar
      * @return boolean Retorna true si el tramo está dentro del horario ($tramosHorario) o false en caso contrario.
      */
+
     function comprobarSiEntraEnHorario ($tramo, $tramosHorario){
 
     }
