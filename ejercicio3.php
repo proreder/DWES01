@@ -18,31 +18,35 @@
     //verificamos si se reciben datos
     if(!empty($_POST)){
         if(isset($_POST['tramo']) && !empty($_POST['tramo'])){
-            // echo "Datos correctos";
-            // print_r($_POST['tramo']);
+            //si existen datos se inicia el proceso de validación
             $tramo=$_POST['tramo'];
             iniciar($tramo);
         }else{
             echo "Datos incorrectos"; 
         }
-    }else{
-        echo "<script language='javascript'>
-                alert('No existen datos del tramo.');
-                
-              </script>";
     }
+    // else{
+    //     echo "<script language='javascript'>
+    //             alert('No existen datos del tramo.');
+                
+    //           </script>";
+    // }
     
     //iniciamos el proceso de verificación
     function iniciar($tramo){
+        //variables
+        $hayError=false;
+        $errores=[];
         $continua=false;
-        //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/
-        $continua=comprobarTramoHoras($tramo);
-        if($continua){
-            // echo "<br><p>Patrón correcto.</p>";
+        //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/ y es correcto
+        $esPatronCorrecto=comprobarTramoHoras($tramo);
+        if($esPatronCorrecto){
+            
             //$tramo='11:30-12:30=>$arrayTramo=[690,750]
+            //convertimos el tramo recibido en minutos
             $arrayTramo=convertirTramoHorasATramoMinutos($tramo);
-            //echo "<br>Tramo: ";
-            //print_r($arrayTramo);
+
+        //
             //Verificamos que el tramoA no está contenido en el tramoB
             $tramoA='10:20-10:30';
             $tramoB='10:00-10:30';
