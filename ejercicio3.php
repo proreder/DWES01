@@ -56,28 +56,28 @@
             $estaDentro=comprobarSiEntraEnHorario($tramo, $horario);
         }
         if($estaDentro){
-            $continua=true;
-        }else{
-            $continua=false;
+           
             echo "<p class='error'>El tramo  ${tramo} está fuera del horario.</p>";
         }
         //se verifica si el tramo se solapa con los tramos del array $ocupacion
-        if($continua){
-            
+         $textoError="";
+        if($continua){ 
+            //
             $arrayErrores=comprobarSiPisaTramosOcupados($tramo, $ocupacion);
             //eliminamos los elementos vacios y pasa mos el elemento con el mensaje de error a cadena
-            foreach ($errores as $error){
+            foreach ($arrayErrores as $error){
                 $longitud=strlen($error);
                 if(!($longitud==0)){
-                    $errores=$error;
+                    $textoError=$error;
                 }
             }
+            if(strlen($textoError)>0){
+            echo "<p class='error'> ${textoError}"."No está libre para su reserva</p>";
+            }else{
+                echo "<p>El tramo ${tramo} esta libre para su reserva</p>";
+            }
         }
-        if(strlen($errores)>0){
-            echo "<p class='error'> ${errores}"."No está libre para su reserva</p>";
-        }else{
-            echo "<p>El tramo ${tramo} esta libre para su reserva</p>";
-        }
+        
                 //
             // $tramoA='10:20-10:30';
             // $tramoB='10:00-10:30';
