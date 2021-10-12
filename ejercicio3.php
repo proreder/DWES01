@@ -11,9 +11,7 @@
 <?php
     //incluimos el formulario
     include_once 'ejercicio3.form.html';
-    //array globales
-    $horario=['10:00-13:30','16:30-20:30'];
-    $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00'];
+    
     
     //verificamos si se reciben datos
     if(!empty($_POST)){
@@ -35,97 +33,120 @@
     //iniciamos el proceso de verificación
     function iniciar($tramo){
         //variables
+        //array globales
+        $horario=['10:00-13:30','16:30-20:30'];
+        $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00'];
         $hayError=false;
         $errores=[];
         $continua=false;
-        //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/ y es correcto
+        //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/ y es correcto, es una hora posible
         $esPatronCorrecto=comprobarTramoHoras($tramo);
         if($esPatronCorrecto){
-            
+            $continua=true;
             //$tramo='11:30-12:30=>$arrayTramo=[690,750]
             //convertimos el tramo recibido en minutos
             $arrayTramo=convertirTramoHorasATramoMinutos($tramo);
-
-        //
-            //Verificamos que el tramoA no está contenido en el tramoB
-            $tramoA='10:20-10:30';
-            $tramoB='10:00-10:30';
-            echo "<br>TramoA: ${tramoA}<br>TramoB: ${tramoB}<br>";
-            $contenido=esTramoHorasContenidoEnOtroTramoHoras($tramoA, $tramoB);
-            if($contenido){
-                echo "<br>El tramoA está contenido en el tramoB: ";
-            }else{
-                echo "<br>El tramoA no está contenido en el tramoB: ";
-            }
-            
-            //verificamos si los tramos se pisan
-            $tramo1='10:20-10:30';
-            $tramo2='10:15-10:25';
-            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
-            echo $resultado;
-            $tramo2='10:21-10:29';
-            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
-            echo $resultado;
-            $tramo2='10:30-10:40';
-            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
-            echo $resultado;
-            $tramo1='10:21-10:30';
-            $tramo2='10:31-10:40';
-            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
-            echo $resultado;
-            $tramo1='10:21-10:30';
-            $tramo2='10:10-10:20';
-            $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
-            echo $resultado;
-            //verificamos un tramo con el array ocupación
-            echo "comprobarSiPisaTramosOcupados";
-            $tramo1='19:20-19:31';
-            global $ocupacion;
-            $errores="";
-            $errores=comprobarSiPisaTramosOcupados($tramo1, $ocupacion);
-            echo "<br>Errores:";
-            print_r($errores);
-            $tramo2='12:30-13:00';
-            $errores=comprobarSiPisaTramosOcupados($tramo2, $ocupacion);
-            echo "<br>Errores:";
-            print_r($errores);
-
-            //Verificamos horarios de apertura
-            global $horario;
-            $tramo='12:20-13:31';
-            $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
-            if($resultado){
-                echo "<br>${tramo} está dentro del horario";
-            }else{
-                echo "<br>${tramo} está fuera del horario";
-            } 
-            //
-            $tramo='12:20-13:30';
-            $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
-            if($resultado){
-                echo "<br>${tramo} está dentro del horario";
-            }else{
-                echo "<br>${tramo} está fuera del horario";
-            }
-            //
-            $tramo='16:29-20:30';
-            $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
-            if($resultado){
-                echo "<br>${tramo} está dentro del horario";
-            }else{
-                echo "<br>${tramo} está fuera del horario";
-            }
-            //
-            $tramo='16:30-20:30';
-            $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
-            if($resultado){
-                echo "<br>${tramo} está dentro del horario";
-            }else{
-                echo "<br>${tramo} está fuera del horario";
-            }
         }else{
+            $continua=false;
             echo "<br><p>Patrón incorrecto.</p>";
         }
+        //Si lo anterior es correcto continuamos, verificamos que el $tramo está dentro de $horario=['10:00-13:30','16:30-20:30']
+        $estaDentro=false;
+        if($continua){
+            $estaDentro=comprobarSiEntraEnHorario($tramo, $horario);
+        }
+        if($estaDentro){
+            $continua=true;
+        }else{
+            $continua=false;
+            echo "<p class='error'>El tramo horario ${tramo} está fuera del horario.</p>";
+        }
+        //se verifica si el tramo se solapa con los tramos del array $ocupacion
+        if($continua){
+            $errores=comprobarSiPisaTramosOcupados($tramo, $ocupacion);
+        }
+        if(sizeof($errores)>0){
+            echo "<p class='error'>".print_r($errores)."</p>";
+        }else{
+            echo "<p>El tramo ${tramo} esta libre para su reserva</p>";
+        }
+
+            // $tramoA='10:20-10:30';
+            // $tramoB='10:00-10:30';
+            // echo "<br>TramoA: ${tramoA}<br>TramoB: ${tramoB}<br>";
+            // $contenido=esTramoHorasContenidoEnOtroTramoHoras($tramoA, $tramoB);
+            // if($contenido){
+            //     echo "<br>El tramoA está contenido en el tramoB: ";
+            // }else{
+            //     echo "<br>El tramoA no está contenido en el tramoB: ";
+            // }
+            
+            // //verificamos si los tramos se pisan
+            // $tramo1='10:20-10:30';
+            // $tramo2='10:15-10:25';
+            // $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            // echo $resultado;
+            // $tramo2='10:21-10:29';
+            // $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            // echo $resultado;
+            // $tramo2='10:30-10:40';
+            // $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            // echo $resultado;
+            // $tramo1='10:21-10:30';
+            // $tramo2='10:31-10:40';
+            // $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            // echo $resultado;
+            // $tramo1='10:21-10:30';
+            // $tramo2='10:10-10:20';
+            // $resultado=comprobarSiSePisanTramosHoras ($tramo1,$tramo2);
+            // echo $resultado;
+            // //verificamos un tramo con el array ocupación
+            // echo "comprobarSiPisaTramosOcupados";
+            // $tramo1='19:20-19:31';
+            // global $ocupacion;
+            // $errores="";
+            // $errores=comprobarSiPisaTramosOcupados($tramo1, $ocupacion);
+            // echo "<br>Errores:";
+            // print_r($errores);
+            // $tramo2='12:30-13:00';
+            // $errores=comprobarSiPisaTramosOcupados($tramo2, $ocupacion);
+            // echo "<br>Errores:";
+            // print_r($errores);
+
+            // //Verificamos horarios de apertura
+            // global $horario;
+            // $tramo='12:20-13:31';
+            // $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
+            // if($resultado){
+            //     echo "<br>${tramo} está dentro del horario";
+            // }else{
+            //     echo "<br>${tramo} está fuera del horario";
+            // } 
+            // //
+            // $tramo='12:20-13:30';
+            // $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
+            // if($resultado){
+            //     echo "<br>${tramo} está dentro del horario";
+            // }else{
+            //     echo "<br>${tramo} está fuera del horario";
+            // }
+            // //
+            // $tramo='16:29-20:30';
+            // $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
+            // if($resultado){
+            //     echo "<br>${tramo} está dentro del horario";
+            // }else{
+            //     echo "<br>${tramo} está fuera del horario";
+            // }
+            // //
+            // $tramo='16:30-20:30';
+            // $resultado=comprobarSiEntraEnHorario ($tramo, $horario);
+            // if($resultado){
+            //     echo "<br>${tramo} está dentro del horario";
+            // }else{
+            //     echo "<br>${tramo} está fuera del horario";
+            // }
+        
     }
     
     /**
@@ -307,7 +328,7 @@
     function comprobarSiPisaTramosOcupados($tramo, $arrayOcupados){
         $error=false;
         $errores=[];
-        var_dump($arrayOcupados);
+       
             //recorremos el array $ocupacion con todos los tramos
             foreach ($arrayOcupados as $unTramo){
                 //hola
