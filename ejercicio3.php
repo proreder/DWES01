@@ -70,7 +70,7 @@
         }else{
             echo "<p>El tramo ${tramo} esta libre para su reserva</p>";
         }
-
+                //
             // $tramoA='10:20-10:30';
             // $tramoB='10:00-10:30';
             // echo "<br>TramoA: ${tramoA}<br>TramoB: ${tramoB}<br>";
