@@ -37,7 +37,7 @@
         $horario=['10:00-13:30','16:30-20:30'];
         $ocupacion=['11:30-12:30','12:31-13:30','16:30-18:00'];
         $hayError=false;
-        $errores=[];
+        $arrayErrores="";
         $continua=false;
         //verificamos que el tramo cumple el patrón /^\d+:\d+-\d+:\d+$/ y es correcto, es una hora posible
         $esPatronCorrecto=comprobarTramoHoras($tramo);
@@ -59,14 +59,22 @@
             $continua=true;
         }else{
             $continua=false;
-            echo "<p class='error'>El tramo horario ${tramo} está fuera del horario.</p>";
+            echo "<p class='error'>El tramo  ${tramo} está fuera del horario.</p>";
         }
         //se verifica si el tramo se solapa con los tramos del array $ocupacion
         if($continua){
-            $errores=comprobarSiPisaTramosOcupados($tramo, $ocupacion);
+            
+            $arrayErrores=comprobarSiPisaTramosOcupados($tramo, $ocupacion);
+            //eliminamos los elementos vacios y pasa mos el elemento con el mensaje de error a cadena
+            foreach ($errores as $error){
+                $longitud=strlen($error);
+                if(!($longitud==0)){
+                    $errores=$error;
+                }
+            }
         }
-        if(sizeof($errores)>0){
-            echo "<p class='error'>".print_r($errores)."</p>";
+        if(strlen($errores)>0){
+            echo "<p class='error'> ${errores}"."No está libre para su reserva</p>";
         }else{
             echo "<p>El tramo ${tramo} esta libre para su reserva</p>";
         }
