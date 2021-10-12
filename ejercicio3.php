@@ -55,14 +55,13 @@
         if($continua){
             $estaDentro=comprobarSiEntraEnHorario($tramo, $horario);
         }
-        if($estaDentro){
+        if(!$estaDentro && $continua==1){
            
             echo "<p class='error'>El tramo  ${tramo} está fuera del horario.</p>";
         }
         //se verifica si el tramo se solapa con los tramos del array $ocupacion
          $textoError="";
-        if($continua){ 
-            //
+        if($estaDentro){ 
             $arrayErrores=comprobarSiPisaTramosOcupados($tramo, $ocupacion);
             //eliminamos los elementos vacios y pasa mos el elemento con el mensaje de error a cadena
             foreach ($arrayErrores as $error){
