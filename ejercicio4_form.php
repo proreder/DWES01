@@ -1,28 +1,28 @@
 <form action="ejercicio4_alta.php" method="post">
 <div>
     <div>
-        <label>Nombre:
-        <input type="text" name="nombre" >
+        <label>Nombre....................:
+        <input type="text" name="nombre" value="<?php isset($nombre) ? print $nombre : ""; ?>"/>
         </label>
     </div>
     <div>
-        <label>Apellidos:
-        <input type="text" name="apellidos" >
+        <label>Apellidos.................:
+        <input type="text" name="apellidos" value="<?php isset($apellidos) ? print $apellidos : ""; ?>"/>
         </label>
     </div>
     <div>
-        <label>Email:
-        <input type="text" name="email" >
+        <label>Email.......................:
+        <input type="text" name="email" value="<?php isset($email) ? print $email : ""; ?>"/>
         </label>
     </div>
     <div>
         <label>Repetición del email:
-        <input type="text" name="remail" >
+        <input type="text" name="remail" value="<?php isset($remail) ? print $remail : ""; ?>"/>
         </label>
     </div>
     <div>
-        <label>Teléfono: 
-        <input type="text" name="telefono">
+        <label>Teléfono.................: 
+        <input type="text" name="telefono" value="<?php isset($telefono) ? print $telefono : ""; ?>"/>
         </label>
     </div>
     <div>
