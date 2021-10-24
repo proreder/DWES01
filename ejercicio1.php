@@ -34,8 +34,14 @@
                     if (!(isset($_GET['ver_norma'])) || (empty($_GET['ver_norma']))){
                         
                             echo "<span class='error'>";
-                            echo "<h3>No se ha indicado una norma<h3>";
+                            echo "<h3>No se ha indicado una norma</h3>";
                             echo "</span>";
+                            echo "<div class='error'>";
+                            echo "<h4>Listado de normas:<h4>";
+                            echo "ver_norma=np  ->  Normas de uso de la piscina.<br>";
+                            echo "ver_norma=ng  ->  Normas de uso del gimnasio.<br>";
+                            echo "ver_norma=ns  ->  Normas de uso de la sala de informática.<br>";
+                            echo "</div>";
                              
                     }else{
                         //se obtiene la norma y se compara con las tres posibles

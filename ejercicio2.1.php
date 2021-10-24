@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/calendario.css" type="text/css"/>
-    <title>Ejercicio 2- Calendario</title>
+    <title>Ejercicio 2.1- Calendario mejorado</title>
 </head>
 <body>
     <?php
@@ -25,7 +25,7 @@
 
         if(!(isset($_GET['d']) || isset($_GET['m']) || isset($_GET['a']))){
             $errorEntrada=true;
-            $texto_error="El formato de entrada no es correcto, ejemplo: 12/05/2021";
+            $texto_error="El formato de entrada no es correcto, ejemplo: http://localhost/DWES01/ejercicio2.1.php?d=1&m=1&a=2021";
         }
         //si no hay error de entrada procesamos los parámetros que no esten vacios
         elseif(empty($_GET['d']) || empty($_GET['m']) || empty($_GET['a'])){
@@ -42,7 +42,7 @@
             $error_fecha=validarFecha($fechaEntrada);
             if(!$error_fecha){
                 $errorEntrada=true;
-                $texto_error="La fecha no es válida, ejemplo: 12/05/2021";  
+                $texto_error="La fecha no es válida, ejemplo: http://localhost/DWES01/ejercicio2.1.php?d=1&m=1&a=2021";  
             }else{
                //Se dibuja la tabla pasando la fecha introducida por via get
                pintarTabla($d, $m, $a);
@@ -63,52 +63,91 @@
         */
         function pintarTabla($dia, $mes, $annio){
             //se obtiene el dia de la semana del mes que se le pasa como parámetro
-            $diaSemana=diaSemana($dia, $mes, $annio);
+            $diaComienzoSemana=diaSemana($dia, $mes, $annio);
             //se obtiene los dias que tiene un mes que se le pasa como parametro
             $diasDelMes=diasMes($mes,$annio);
-            
+            $filasTitulos=true;
+            $celdasEnBlanco=true;
             $columnas=7;
             $enBlanco=false;
-            $arrayDiasSemana= ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            $arrayMeses= ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            $arrayDiasSemana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            
+            $mes=intval($mes);
             echo "<table>";
-            //pintamos la cabecera de la tabla
-            echo "<tr>";
-            for ($i=0;$i<7;$i++){
-                echo ("<th class='cabecera'>${arrayDiasSemana[$i]}</th>");
-            }
-            echo "</tr>";
+
             for ($fila=1;$fila<=SEMANAS;$fila++){//bucle para las filas/SEMANAS
-                echo "<tr>";
+                //para cada nueva fila posicionamos la celda 1
+                $celda=1;
+                if($filasTitulos==true){
+                    
+                    //pintamos el mes
+                    echo ("<tr><td class='mes' colspan='7'>${arrayMeses[$mes-1]}</td></tr>");
+                    //pintamos la cabecera de la tabla
+                    echo "<tr>";
+                    for ($i=0;$i<7;$i++){
+                        echo ("<td class='cabecera'>${arrayDiasSemana[$i]}</td>");
+                    }
+                    echo "</tr>";
+                    //agregamos las celdas en blanco si hay
+                    //$enBlanco= celdaEnBlanco($celda, $diaSemana, $fila);
+                    
+                    
+                    $filasTitulos=false;
+                }
+                if($diaComienzoSemana>1 && $celdasEnBlanco){
+                        echo"<tr>";
+                        for($i=1;$i<$diaComienzoSemana;$i++){
+                         echo "<td class='blanco'>---</td>";
+                         $celda++;
+                        }
+                        $celdasEnBlanco=false;
+                    }
+                if($diaComienzoSemana==1){
+                    echo "<tr>";
+                }    
                 
-                for($celda=1;$celda<=$columnas;$celda++){//bucle para los columnas/días
+                do{//bucle para las celdas/días
                    
-                    $enBlanco= celdaEnBlanco($celda, $diaSemana, $fila);
-                    if($celda<6 && !$enBlanco){
+                    
+                    if($celda<6){
                         echo "<td class='laboral'>${dia}/${mes}/${annio}</td>";
                         $dia++;
                     }
-                    if(($celda==6 || $celda==7) && !$enBlanco){
+                    if(($celda==6 || $celda==7)){
                         echo "<td class='festivo'>${dia}/${mes}/${annio}</td>";
                         $dia++;
                     }
-                     if($enBlanco){
-                        echo "<td class='blanco'>---</td>";
-                        
-                    }
+                     
                     //si $dia supera $diasDelMes ponemos a 1 $dia y sumamos un mes
                     if($dia>$diasDelMes){
                         $dia=1;
                         $mes++;
-                        //si el mes llega a 13, ponemos mes a 1 (enero) y sumamos un año
                         if($mes==13) {
                             $mes=1;
                             $annio++;
+                            
                         }
+                        $celdasEnBlanco=true;
+                        $celda=7;
+                        //echo "<br>";
+                        //pintamos el mes
+                        echo ("<tr><td class='mes' colspan='7'>${arrayMeses[$mes-1]}</td></tr>");
+                        //pintamos la cabecera de la tabla
+                        echo "<tr>";
+                        for ($i=0;$i<7;$i++){
+                            echo ("<td class='cabecera'>${arrayDiasSemana[$i]}</td>");
+                        }
+                        echo "</tr>";
+                        //si el mes llega a 13, ponemos mes a 1 (enero) y sumamos un año
                         
+                        $diaComienzoSemana=diaSemana($dia, $mes, $annio);
                         //obtenems los días del siguiente mes
                         $diasDelMes=diasMes($mes, $annio);
+                        
                     }
-                }
+                    $celda++;
+                }while($celda<8);
                 echo "</tr>";
                 
             }
